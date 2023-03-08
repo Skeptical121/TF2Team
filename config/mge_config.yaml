@@ -1,0 +1,61 @@
+# Rules of thumb:
+# Keep beta as low as possible (beta is the entropy regularizer). This is especially important for precise actions, such as aiming
+
+
+behaviors:
+  TF2Player:
+    trainer_type: ppo
+    hyperparameters:
+      batch_size: 512
+      beta: 0.001 # scale this down as needed, early on keeping this high helps with training, but the main disadvantage is that it makes it bad at aiming precisely
+      buffer_size: 40960
+      epsilon: 0.2
+      lambd: 0.95
+      learning_rate: 0.0002 #0.0003
+      learning_rate_schedule: constant
+      num_epoch: 3
+    max_steps: 500000000
+    network_settings:
+      normalize: true
+      num_layers: 1
+      hidden_units: 256
+      vis_encode_type: simple
+      conditioning_type: none
+      memory:
+        memory_size: 256 #128
+        sequence_length: 16
+    time_horizon: 128
+    summary_freq: 20000
+    # threaded: true
+    reward_signals:
+      extrinsic:
+        strength: 1.0
+        gamma: 0.995 #0.99
+      #curiosity:
+      #  strength: 0.5
+      #  gamma: 0.99
+      #  network_settings:
+      #    hidden_units: 64
+      #    num_layers: 2
+      #  learning_rate: 0.0003
+    self_play:
+      window: 40 #20
+      play_against_latest_model_ratio: 0.75 #0.5 We are bringing this down to 0 because I believe what's happening is that the scout is able to gain reward by dodging in a certain direction, and then the soldier adapts, and since you can dodge in many different spots, the scout keeps getting rewarded for doding the latest soldier's adaption, and devolves into a scout that can't actually dodge any better than the original scout, but aims a lot worse.. since the soldier can just keep adapting to where the scout dodges to
+      save_steps: 500000
+      swap_steps: 100000
+      team_change: 500000 #200000 don't give too much of an opportunity to counterexploit
+  
+torch_settings:
+  device: cpu #cpu is actually faster than cuda (gpu) for the models we've been using
+  
+#environment_parameters:
+#  stage:
+#    curriculum:
+#      - name: Stage0
+#        completion_criteria:
+#          measure: progress
+#          behavior: TF2Player
+#          threshold: 0.03
+#        value: 0.0
+#      - name: Stage1
+#        value: 1.0

@@ -1,0 +1,62 @@
+# Rules of thumb:
+# Keep beta as low as possible (beta is the entropy regularizer). This is especially important for precsie actions, such as aiming
+
+
+behaviors:
+  TF2Player:
+    trainer_type: poca
+    hyperparameters:
+      batch_size: 512 #1024
+      beta: 0.005 # scale this down as needed, early on keeping this high helps with training, but the main disadvantage is that it makes it bad at aiming precisely
+      buffer_size: 40960
+      epsilon: 0.2
+      lambd: 0.95
+      learning_rate: 0.0003
+      learning_rate_schedule: constant
+      num_epoch: 3
+    max_steps: 50000000
+    network_settings:
+      normalize: false
+      num_layers: 2
+      hidden_units: 256
+      vis_encode_type: simple
+      # conditioning_type: none
+      #memory:
+      #  memory_size: 128
+      #  sequence_length: 16
+    time_horizon: 1024 #256
+    summary_freq: 50000
+    # use_recurrent: false
+    # threaded: true
+    reward_signals:
+      extrinsic:
+        strength: 1.0
+        gamma: 0.998 #0.995
+      #curiosity:
+      #  strength: 0.5
+      #  gamma: 0.99
+      #  network_settings:
+      #    hidden_units: 64
+      #    num_layers: 2
+      #  learning_rate: 0.0003
+    self_play:
+      window: 20 #10
+      play_against_latest_model_ratio: 0.75 #0.5
+      save_steps: 100000
+      swap_steps: 10000
+      team_change: 400000 #200000 don't give too much of an opportunity to counterexploit
+  
+torch_settings:
+  device: cpu #cpu is actually faster than cuda (gpu) for the models we've been using
+  
+environment_parameters:
+  stage:
+    curriculum:
+      - name: Stage0
+        completion_criteria:
+          measure: progress
+          behavior: TF2Player
+          threshold: 0.03
+        value: 0.0
+      - name: Stage1
+        value: 1.0

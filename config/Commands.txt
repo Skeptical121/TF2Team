@@ -1,0 +1,44 @@
+mlagents-learn config/mge_config.yaml --force --run-id=Test4
+
+mlagents-learn config/mge_config.yaml --run-id=Test4 --env=Train4/TF2Team.exe --resume
+
+mlagents-learn config/config.yaml --force --run-id=Test4 --env=Build/TF2Team.exe --num-envs=10
+
+mlagents-learn config/config10.yaml --run-id=Alt10 --env=Build/HearthstoneSim.exe --num-envs=1 --base-port 5020
+
+
+tensorboard --logdir results --port 6006
+
+
+
+mlagents-learn config/tf2_config.yaml --force --run-id=TF2
+
+
+
+START:
+mlagents-learn config/tf2_config.yaml --force --run-id=TF2
+--env=BuildN/TF2.exe --num-envs=4
+mlagents-learn config/tf2_config.yaml --force --run-id=TF2 --env=BuildN/TF2.exe --num-envs=4
+
+RESUME:
+mlagents-learn config/tf2_config.yaml --resume --run-id=TFN
+mlagents-learn config/tf2_config.yaml --resume --run-id=TFN --env=BuildN/TF2.exe --num-envs=4
+
+BOOTSTRAP:
+mlagents-learn config/tf2_config.yaml --initialize-from=TF7 --run-id=TF8 --env=BuildN/TF2.exe --num-envs=4
+
+cd TF2
+tensorboard --logdir results --port 6006
+http://localhost:6006/
+
+
+TF2.exe -screen-width 1920 -screen-height 1080 -screen-fullscreen 1
+
+
+
+
+TeamTF2:
+
+mlagents-learn config/team_config.yaml --force --run-id=CapMid --env=TeamBuildN/TF2Team.exe --num-envs=4
+
+mlagents-learn config/team_config.yaml --run-id=Team2 --env=TeamBuild2/TF2Team.exe --num-envs=4
